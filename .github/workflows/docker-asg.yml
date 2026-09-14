@@ -52,7 +52,7 @@ jobs:
           --instance-ids "i-054c22943ab42ae99" \
           --document-name "AWS-RunShellScript" \
           --parameters "commands=[
-            \"aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 925047940866.dkr.ecr.ap-south-1.amazonaws.com\"
+            \"aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 925047940866.dkr.ecr.ap-south-1.amazonaws.com\",
             \"sudo docker pull 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:latest\",
             \"sudo docker stop nginx-container || true\",
             \"sudo docker rm nginx-container || true\",
