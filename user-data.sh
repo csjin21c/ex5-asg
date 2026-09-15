@@ -1,0 +1,12 @@
+#!/bin/bash
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 925047940866.dkr.ecr.ap-south-1.amazonaws.com\",
+mkdir -p /home/ec2-user/nginx/html
+chown -R ec2-user:nginx /home/ec2-user/nginx
+aws s3 sync s3://ian-s3-website-bucket/html/ /home/ec2-user/nginx/html/ --delete
+aws s3 cp s3://ian-s3-website-bucket/docker-compose.yaml /home/ec2-user/docker-compose.yaml
+# docker-compose는 디렉토리명을 기본 네임스페이스 값으로 인식합니다.
+# 이로인해 /docker-compose.yml은 네임스페이스 값을 갖을 수 없어 실행되지 않습니다. 
+cd /home/ec2-user
+docker compose pull
+docker compose up -d --remove-orphans
+docker image prune -f

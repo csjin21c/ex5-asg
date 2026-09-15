@@ -32,7 +32,7 @@ jobs:
       run: |
         # 전체 동기화
         aws s3 cp ./docker-compose.yaml s3://ian-s3-website-bucket/docker-compose.yaml
-        aws s3 sync ./html s3://ian-s3-website-bucket/html --delete
+        aws s3 sync ./nginx/html/ s3://ian-s3-website-bucket/html/ --delete
 
     # ECR에 Docker 이미지 빌드 및 푸시
     - name: Login to Amazon ECR
