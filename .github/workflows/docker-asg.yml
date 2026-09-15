@@ -1,5 +1,5 @@
 # 워크플로우(작업) 이름
-name: GitOps SSM CICD Pipeline
+name: GitOps ASG CICD Pipeline
 # 1. 트리거 설정: 브랜치 정의
 on:
   push:
@@ -60,6 +60,8 @@ jobs:
             \"aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 925047940866.dkr.ecr.ap-south-1.amazonaws.com\",
             \"sudo docker stop nginx-container || true\",
             \"sudo docker rm nginx-container || true\",
+            \"sudo mkdir -p /home/ec2-user/nginx/html\",
+            \"sudo chown -R ec2-user:nginx /home/ec2-user/nginx\",
             \"sudo aws s3 cp s3://ian-s3-website-bucket/docker-compose.yaml ./docker-compose.yaml\",
             \"sudo docker compose pull\",
             \"sudo docker compose up -d --remove-orphans\",
