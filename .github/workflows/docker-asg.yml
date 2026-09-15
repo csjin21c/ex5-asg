@@ -72,8 +72,9 @@ jobs:
             \"sudo chown -R ec2-user:ec2-user /home/ec2-user/fastapi\",
             \"sudo aws s3 sync s3://ian-s3-website-bucket/nginx/ /home/ec2-user/nginx/ --delete\",
             \"sudo aws s3 sync s3://ian-s3-website-bucket/fastapi/ /home/ec2-user/fastapi/ --delete\",
+            \"sudo aws s3 cp s3://ian-s3-website-bucket/docker-compose.yaml /home/ec2-user/docker-compose.yaml --delete\",
             \"sudo docker compose pull\",
-            \"sudo docker compose -f ./fastapi/docker-compose.yaml -p ian-fastapi up -d --remove-orphans\",
+            \"sudo docker compose up -d --remove-orphans\",
             \"sudo docker image prune -f\"
           ]" \
           --region ${{ secrets.AWS_REGION }} \
