@@ -31,9 +31,7 @@ jobs:
     - name: S3 정적웹사이트로 배포
       run: |
         # 전체 동기화
-        aws s3 cp ./docker-compose.yaml s3://ian-s3-website-bucket/docker-compose.yaml
-        aws s3 sync ./nginx/html/ s3://ian-s3-website-bucket/html/ --delete
-        aws s3 sync ./fastapi/app/ s3://ian-s3-website-bucket/app/ --delete
+        aws s3 sync ./nginx/ s3://ian-s3-website-bucket/nginx/ --delete
 
     # ECR에 Docker 이미지 빌드 및 푸시
     - name: Login to Amazon ECR
@@ -41,20 +39,16 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
       
     - name: Build and push Docker image to ECR
-      env:
+      # env:
       #   ECR_REGISTRY: ${{}}
       #   ECR_REPOSITORY: ${{}}
-        IMAGE_TAG: ${{ github.sha }}
+      #   IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build --no-cache -t 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:$IMAGE_TAG ./nginx
+        docker build --no-cache -t 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:1.31.3-ecr ./nginx
         docker build --no-cache -t 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:latest ./nginx
-        docker build --no-cache -t 925047940866.dkr.ecr.ap-south-1.amazonaws.com/fastapi:$IMAGE_TAG ./fastapi
-        docker build --no-cache -t 925047940866.dkr.ecr.ap-south-1.amazonaws.com/fastapi:latest ./fastapi
 
-        docker push 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:$IMAGE_TAG
+        docker push 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:1.31.3-ecr
         docker push 925047940866.dkr.ecr.ap-south-1.amazonaws.com/nginx:latest
-        docker push 925047940866.dkr.ecr.ap-south-1.amazonaws.com/fastapi:$IMAGE_TAG
-        docker push 925047940866.dkr.ecr.ap-south-1.amazonaws.com/fastapi:latest
       
     - name: 컨테이너 배포 및 S3 파일 싱크
       run: |
@@ -64,16 +58,13 @@ jobs:
           --targets "Key=tag:Cicd,Values=asg" \
           --parameters "commands=[
             \"sudo aws ecr get-login-password --region ap-south-1 | sudo docker login --username AWS --password-stdin 925047940866.dkr.ecr.ap-south-1.amazonaws.com\",
-            \"sudo docker stop nginx-container fastapi-container || true\",
-            \"sudo docker rm nginx-container  fastapi-container|| true\",
+            \"sudo docker stop nginx-container || true\",
+            \"sudo docker rm nginx-container || true\",
             \"sudo mkdir -p /home/ec2-user/nginx/html\",
-            \"sudo mkdir -p /home/ec2-user/fastapi/app\",
-            \"sudo chown -R ec2-user:ec2-user /home/ec2-user/nginx\",
-            \"sudo chown -R ec2-user:ec2-user /home/ec2-user/fastapi\",
+            \"sudo chown -R ec2-user:nginx /home/ec2-user/nginx\",
             \"sudo aws s3 sync s3://ian-s3-website-bucket/nginx/ /home/ec2-user/nginx/ --delete\",
-            \"sudo aws s3 sync s3://ian-s3-website-bucket/fastapi/ /home/ec2-user/fastapi/ --delete\",
             \"sudo docker compose pull\",
-            \"sudo docker compose -f ./fastapi/docker-compose.yaml -p ian-fastapi up -d --remove-orphans\",
+            \"sudo docker compose -f ./nginx/docker-compose-nginx.yaml -p ian-nginx up -d --remove-orphans\",
             \"sudo docker image prune -f\"
           ]" \
           --region ${{ secrets.AWS_REGION }} \
